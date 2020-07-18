@@ -1,4 +1,4 @@
-
+from string import ascii_uppercase
 from rotores import Rotor
 
 class Maquina:
@@ -7,27 +7,28 @@ class Maquina:
 	slowRotor: Rotor
 	reflector: Rotor
 
-	def __init__(self, idx_fr=0, idx_mr=0, idx_sr=0):
-		slow_rotor_indexes = [4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 23, 20, 18, 15, 0, 8, 1, 17, 2, 9]
-		medium_rotor_indexes = [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4]
-		fast_rotor_indexes = [1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14]
-		reflector_indexes = [8, 23, 20, 7, 5, 4, 25, 3, 0, 14, 12, 19, 10, 16, 9, 22, 13, 18, 17, 11, 2, 24, 15, 1, 21, 6]
 
-		self.fastRotor = Rotor(idx_fr, fast_rotor_indexes)
-		self.mediumRotor = Rotor(idx_mr, medium_rotor_indexes)
-		self.slowRotor = Rotor(idx_sr, slow_rotor_indexes)
-		self.reflector = Rotor(0, reflector_indexes)
+	def __init__(self, char_fr='A', char_mr='A', char_sr='A'):
+		slow_rotor_indexes = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
+		medium_rotor_indexes = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
+		fast_rotor_indexes = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
+		reflector_indexes = "IXUHFEZDAOMTKQJWNSRLCYPBVG"
 
-	def cifrar(self, idx):
-		idx_fr = self.fastRotor.push(idx)
-		idx_mr = self.mediumRotor.push(idx_fr)
-		idx_sr = self.slowRotor.push(idx_mr)
-		idx_rr = self.reflector.push(idx_sr)
-		idx_sr = self.slowRotor.antipush(idx_rr)
-		idx_mr = self.mediumRotor.antipush(idx_sr)
-		idx_fr = self.fastRotor.antipush(idx_mr)
+		self.fastRotor = Rotor(char_fr, fast_rotor_indexes)
+		self.mediumRotor = Rotor(char_mr, medium_rotor_indexes)
+		self.slowRotor = Rotor(char_sr, slow_rotor_indexes)
+		self.reflector = Rotor('A', reflector_indexes)
+
+	def cifrar(self, char):
+		char_fr = self.fastRotor.push(char)
+		char_mr = self.mediumRotor.push(char_fr)
+		char_sr = self.slowRotor.push(char_mr)
+		char_rr = self.reflector.push(char_sr)
+		char_sr = self.slowRotor.antipush(char_rr)
+		char_mr = self.mediumRotor.antipush(char_sr)
+		char_fr = self.fastRotor.antipush(char_mr)
 		self.moveRotors()
-		return idx_fr
+		return char_fr
 
 	def moveRotors(self):
 		self.fastRotor.move()
@@ -46,7 +47,22 @@ class Maquina:
             
 if __name__ == "__main__":
 	mq = Maquina()
-	#print(mq.cifrar(0))
-	print(mq.cifrar(15))
-   
-    
+	
+	#testing
+	big_string = ascii_uppercase + ascii_uppercase[::-1]
+
+	big_string_encrypted = ""
+
+	for char in big_string:
+		big_string_encrypted += mq.cifrar(char)
+
+	print("\n")
+	print("#"*100)
+
+	print(f"Big string big_string_encrypted: {big_string_encrypted}")
+
+	mq_for_decryption = Maquina()
+
+	print(f"Big string decrypted: ")
+	for char in big_string_encrypted:
+		print(mq_for_decryption.cifrar(char), end = "")		
