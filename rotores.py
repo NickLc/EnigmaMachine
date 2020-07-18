@@ -1,46 +1,43 @@
 import random
+from string import ascii_uppercase
 
 class Rotor:
     #permutacion de rel en cada giro
-    dest_go: list
+    dest_go: str
     count: int
 
-    def __init__(self, ind_init=0, dest_go=[]):
+    def __init__(self, char_init='A', dest_go=""):
         
         self.count = 0
         self.dest_go = dest_go
 
-        if(ind_init != 0):
+        if(char_init != 'A'):
+            ind_init = ascii_uppercase.find(char_init)
             self.dest_go = self.dest_go[ind_init:] + self.dest_go[:ind_init]
 
         if(len(dest_go) == 0):
-            self.dest_go = self.set_random_arr()
+            self.dest_go = self.set_random_string()
 
     def move(self):
         aux_dest_go = self.dest_go[0]
-        self.dest_go = self.dest_go[1:]+ [aux_dest_go]
+        self.dest_go = self.dest_go[1:] + aux_dest_go
             
-
-    def set_random_arr(self):
-        new_rel = list(range(len(26)))
-        for i in range(len(new_rel)):
-            index = random.randint(0,len(new_rel)-1)
-            new_rel[i], new_rel[index] = new_rel[index], new_rel[i]
-        return new_rel    
+    def set_random_string(self):
+        return "BDFHJLCPRTXVZNYEIWGAKMUSQO"    
     
-    def push(self, idx):
-        new_idx = self.dest_go[idx]
-        return new_idx
+    def push(self, char_to_encrypt):
+        new_char = self.dest_go[ascii_uppercase.find(char_to_encrypt)]
+        return new_char
 
-    def antipush(self, reflected_value):
-        new_idx = self.dest_go.index(reflected_value)
-        return new_idx
+    def antipush(self, reflected_char):
+        new_char = ascii_uppercase[self.dest_go.find(reflected_char)]
+        return new_char
 
 
 if __name__ == "__main__":
     # default start in 0
-    aux_go = [1,3,5,7,9,11,2,15,17,19,23,21,25,13,24,4,8,22,6,0,10,12,20,18,16,14] 
+    aux_go = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
     
-    rt = Rotor(1, aux_go)
-    print(rt.antipush(0))
+    rt = Rotor('B', aux_go)
+    print(rt.antipush('B'))
  
