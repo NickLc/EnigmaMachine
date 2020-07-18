@@ -24,14 +24,14 @@ def turnOnLamp(event):
     row = position[0]
     col = position[1]
     global letter
-    letter = enigMachine.cifrar(keyboard_letters[row][col])
-    loadQ = Image.open(pathLamps+letter+"_h.png")
+    letter = enigMachine.cifrar(keyboard_letters[row][col].upper())
+    loadQ = Image.open(pathLamps+letter.lower()+"_h.png")
     renderHQ = ImageTk.PhotoImage(loadQ.resize((50,50),Image.ANTIALIAS))
     indexLetter = dictNumLet.get(letter.lower())
     labels[indexLetter].configure(image = renderHQ)
     labels[indexLetter].image = renderHQ
 def turnOffLamp(event):
-    loadQ = Image.open(pathLamps+letter+".png")
+    loadQ = Image.open(pathLamps+letter.lower()+".png")
     renderHQ = ImageTk.PhotoImage(loadQ.resize((50,50),Image.ANTIALIAS))
     indexLetter = dictNumLet.get(letter.lower())
     labels[indexLetter].configure(image = renderHQ)
