@@ -1,55 +1,78 @@
 from string import ascii_uppercase
 from rotores import Rotor
+from plugboard import Plugboard
 
 class Maquina:
-	fastRotor: Rotor
-	mediumRotor: Rotor
-	slowRotor: Rotor
+	list_of_rotors: list
 	reflector: Rotor
+	plugboard: Plugboard
 
+	def __init__(self, nmrRotors, initCharRotors, cables):
 
-	def __init__(self, char_fr='A', char_mr='A', char_sr='A'):
-		slow_rotor_indexes = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
-		medium_rotor_indexes = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
-		fast_rotor_indexes = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
+		self.list_of_rotors = []
 		reflector_indexes = "IXUHFEZDAOMTKQJWNSRLCYPBVG"
 
-		self.fastRotor = Rotor(char_fr, fast_rotor_indexes)
-		self.mediumRotor = Rotor(char_mr, medium_rotor_indexes)
-		self.slowRotor = Rotor(char_sr, slow_rotor_indexes)
+		#rotors_orders = ["EKMFLGDQVZNTOWYHXUSPAIBRCJ", "AJDKSIRUXBLHWTMCQGZNPYFVOE", "BDFHJLCPRTXVZNYEIWGAKMUSQO"]
+		rotors_orders = ["EKMFLGDQVZNTOWYHXUSPAIBRCJ", "AJDKSIRUXBLHWTMCQGZNPYFVOE", "BDFHJLCPRTXVZNYEIWGAKMUSQO", "RMSLNIXCYPTZAHJOUFDBQGWKVE", "ZIHFQEMASYPOWDBKVXCNLRTUGJ"]
+		
+		# "RMSLNIXCYPTZAHJOUFDBQGWKVE", "ZIHFQEMASYPOWDBKVXCNLRTUGJ"
+		# imaginemos nmrRotor = [2,1] y charRotor = ['C','G']
+
+		for index, (nmrRotor, charRotor) in enumerate(zip(nmrRotors, initCharRotors)):
+			self.list_of_rotors.append(Rotor(charRotor, rotors_orders[nmrRotor-1]))			    
+
+		self.plugboard = Plugboard(cables)
 		self.reflector = Rotor('A', reflector_indexes)
 
 	def cifrar(self, char):
-		char_fr = self.fastRotor.push(char)
-		char_mr = self.mediumRotor.push(char_fr)
-		char_sr = self.slowRotor.push(char_mr)
-		char_rr = self.reflector.push(char_sr)
-		char_sr = self.slowRotor.antipush(char_rr)
-		char_mr = self.mediumRotor.antipush(char_sr)
-		char_fr = self.fastRotor.antipush(char_mr)
-		self.moveRotors()
-		return char_fr
+		char_processed = char
 
-	def moveRotors(self):
-		self.fastRotor.move()
-		self.fastRotor.count += 1
+		char_processed = self.plugboard.procesar_caracter(char_processed)
 
-		if(self.fastRotor.count == 26):
-			self.fastRotor.count = 0
-			self.mediumRotor.move()
-			self.mediumRotor.count += 1
+		for rotor in self.list_of_rotors:
+			char_processed = rotor.push(char_processed)
 
-		if(self.mediumRotor.count == 26):
-			self.mediumRotor.count = 0
-			self.slowRotor.count += 1
-			self.slowRotor.move()
+		char_processed = self.reflector.push(char_processed)
 
-            
+		for rotor in self.list_of_rotors[::-1]:
+			char_processed = rotor.antipush(char_processed)
+
+		char_processed = self.plugboard.procesar_caracter(char_processed)	
+
+		self.moveListOfRotors()
+
+		"""
+		for rotor in self.list_of_rotors:
+			print(f"Rotor: {rotor.dest_go} count: {rotor.count}")
+		"""
+		
+		return char_processed
+
+	def moveListOfRotors(self):
+		for index,rotor in enumerate(self.list_of_rotors):
+			if index == 0:
+				rotor.move()
+				rotor.count += 1
+			else:
+				if self.list_of_rotors[index-1].count == 26:
+					self.list_of_rotors[index-1].count = 0
+					rotor.move()
+					rotor.count += 1
+
 if __name__ == "__main__":
-	mq = Maquina()
+
+	rotors_numbers = [2,1,3,5,4]
+	init_chars = ['C','F','G','B','M']
+	cables = {
+	'A' : 'C',
+	'B' : 'F',
+	'G' : 'H'
+	}
+
+	mq = Maquina(rotors_numbers, init_chars, cables)
 	
 	#testing
-	big_string = ascii_uppercase + ascii_uppercase[::-1]
+	big_string = ascii_uppercase * 25
 
 	big_string_encrypted = ""
 
@@ -61,7 +84,7 @@ if __name__ == "__main__":
 
 	print(f"Big string big_string_encrypted: {big_string_encrypted}")
 
-	mq_for_decryption = Maquina()
+	mq_for_decryption = Maquina(rotors_numbers, init_chars, cables)
 
 	print(f"Big string decrypted: ")
 	for char in big_string_encrypted:
